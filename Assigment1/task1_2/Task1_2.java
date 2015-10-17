@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.registry.LocateRegistry;
 
-public class Task1_1 {
+public class Task1_2 {
 
 	
 	public static void main(String []args) throws IOException{
@@ -15,9 +15,9 @@ public class Task1_1 {
 		//Cache size
 		int n = Integer.parseInt(args[1]);
 		
-		int nbProcessedRequest = 0;
+		double nbProcessedRequest = 0;
 		
-		LFUCache lfu = new LFUCache(n);
+		//LFUCache lfu = new LFUCache(n);
 		LRUCache lru = new LRUCache(n);
 		
 		
@@ -25,22 +25,22 @@ public class Task1_1 {
 		while ((s = in.readLine()) != null && s.length() != 0) {
 			if (x == 0) {
 				String request[] = s.split(" ");
-				lfu.add(request[0]);
-				lru.add(request[0]);
+				//lfu.add(request[0], Integer.parseInt(request[1]));
+				lru.add(request[0], Integer.parseInt(request[1]));
 				nbProcessedRequest++;
 			} else {
 				x--;
 			}
 		}
-		
-		lfu.writeInFile();
+		lru.print();
+		//lfu.writeInFile();
 		lru.writeInFile();
 		
 		double lruHitRate = lru.getMiss()/nbProcessedRequest * 100;
 		//double lfuHitRate = lfu.getHit()/nbProcessedRequest * 100;
 		
-		System.out.println("LRU Hit rate :" + lruHitRate +"%");
-		//System.out.println("LFU Hit rate :" + lfuHitRate + "%");
+		System.out.println("LRU Hit rate :" + lruHitRate);
+		//System.out.println("LFU Hit rate :" + lfuHitRate);
 		
 	}
 }
