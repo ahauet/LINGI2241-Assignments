@@ -16,8 +16,10 @@ public class LFUCache {
 		//Concatenation between frequency and date
 		private long fdate;
 		private int frequency;
+		private int size;
 		
-		public LFUElement(String request, int frequency) {
+		public LFUElement(String request, int frequency, int size) {
+			this.size = size;
 			this.request = request;
 			Calendar cal = Calendar.getInstance();
 	        SimpleDateFormat sdf = new SimpleDateFormat("HHmmssSS");
@@ -64,12 +66,13 @@ public class LFUCache {
 	private Comparator<LFUElement> comparator = new LFUELementComparator();
 	private LinkedHashMap<String, LFUElement> cache = new LinkedHashMap<String, LFUElement >();
 	private PriorityQueue<LFUElement> queue = new PriorityQueue<LFUElement>(comparator);
-	private int size;
+	private int cacheSize;
+	private int freeSpace;
 	private int miss = 0;
 	private int hit = 0;
 	
-	public LFUCache(int size) {
-		this.size = size;
+	public LFUCache(int cacheSize) {
+		this.cacheSize = cacheSize;
 	}
 	
 	public int getHit() {
@@ -83,24 +86,34 @@ public class LFUCache {
 	public void add(String request, int size) {
 		if (cache.containsKey(request)) {
 			LFUElement tmp = cache.get(request);
+			if(tmp.size == size) {
+				hit++;
+			} else {
+				while(freeSpace < size) {
+					LFUElement removeElement = queue.remove();
+					freeSpace += removeElement.size;
+					cache.remove(removeElement.request);
+				}
+				freeSpace -= size;
+				miss++;
+			}
 			queue.remove(tmp);
-			LFUElement newElement = new LFUElement(tmp.request,tmp.frequency + 1);
+			LFUElement newElement = new LFUElement(tmp.request,tmp.frequency + 1, size);
 			cache.put(request, newElement);
 			queue.add(newElement);	
-			hit++;
+			
 		} 
-		else if (cache.size() == size) {
-			LFUElement removeElement = queue.remove();
-			cache.remove(removeElement.request);
-			LFUElement newElement = new LFUElement(request, 1);
-			queue.add(newElement);
-			cache.put(request, newElement);
-			miss++;
-		}
 		else {
-			LFUElement newElement = new LFUElement(request, 1);
+			while(freeSpace < size) {
+				LFUElement removeElement = queue.remove();
+				freeSpace += removeElement.size;
+				cache.remove(removeElement.request);
+			}
+			
+			LFUElement newElement = new LFUElement(request, 1,size);
 			queue.add(newElement);
 			cache.put(request, newElement);
+			freeSpace -= size;
 			miss++;
 		}
 	}

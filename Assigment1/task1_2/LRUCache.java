@@ -35,20 +35,21 @@ public class LRUCache {
 				hit++;
 			} else {
 				freeSpace += oldSize;
+				while(freeSpace < size) {
+					String request = cache.keySet().iterator().next();
+					freeSpace += cache.get(request);
+					cache.remove(request);
+				}
 				freeSpace -= size;
 				miss++;
 			}
 		}
-		else if(cache.size() == cacheSize){
+		else {
 			while(freeSpace < size) {
 				String request = cache.keySet().iterator().next();
 				freeSpace += cache.get(request);
 				cache.remove(request);
 			}
-			cache.put(s, size);
-			freeSpace -= size;
-			miss++;
-		} else {
 			cache.put(s, size);
 			freeSpace -= size;
 			miss++;
