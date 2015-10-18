@@ -10,26 +10,28 @@ import java.util.PriorityQueue;
 
 public class LFUCache {
 	
-	class LFUElement {
+	static class LFUElement {
 		
 		private String request;
 		//Concatenation between frequency and date
 		private long fdate;
 		private int frequency;
 		private int size;
+		private static int indice = 0;
 		
 		public LFUElement(String request, int frequency, int size) {
 			this.size = size;
 			this.request = request;
-			Calendar cal = Calendar.getInstance();
+			/*Calendar cal = Calendar.getInstance();
 	        SimpleDateFormat sdf = new SimpleDateFormat("HHmmssSS");
 	        String date = sdf.format(cal.getTime());
 	        if(date.length() < 9) {
 	        	while(date.length() < 9) {
 	        		date += "0";
 	        	}
-	        }
-	        String s = Integer.toString(frequency) + date;
+	        }*/
+	        String s = Integer.toString(frequency) + indice;
+	        indice++;
 	        this.fdate = Long.valueOf(s);
 	        this.frequency = frequency;
 		}

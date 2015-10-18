@@ -17,30 +17,31 @@ public class Task1_2 {
 		
 		double nbProcessedRequest = 0;
 		
-		LFUCache lfu = new LFUCache(n);
-		LRUCache lru = new LRUCache(n);
+		//LFUCache lfu = new LFUCache(n);
+		//LRUCache lru = new LRUCache(n);
+		RemoveLargestFirstCache rlf = new RemoveLargestFirstCache(n);
 		
 		
 		String s;
 		while ((s = in.readLine()) != null && s.length() != 0) {
 			if (x == 0) {
 				String request[] = s.split(" ");
-				lfu.add(request[0], Integer.parseInt(request[1]));
-				lru.add(request[0], Integer.parseInt(request[1]));
+				//lfu.add(request[0], Integer.parseInt(request[1]));
+				//lru.add(request[0], Integer.parseInt(request[1]));
+				rlf.add(request[0], Integer.parseInt(request[1]));
 				nbProcessedRequest++;
 			} else {
 				x--;
 			}
 		}
-		lru.print();
-		lfu.writeInFile();
-		lru.writeInFile();
+		//lfu.writeInFile();
+		//lru.writeInFile();
+		rlf.print();
+		//double lruHitRate = lru.getMiss()/nbProcessedRequest * 100;
+		//double lfuHitRate = lfu.getHit()/nbProcessedRequest * 100;
 		
-		double lruHitRate = lru.getMiss()/nbProcessedRequest * 100;
-		double lfuHitRate = lfu.getHit()/nbProcessedRequest * 100;
-		
-		System.out.println("LRU Hit rate :" + lruHitRate +"%");
-		System.out.println("LFU Hit rate :" + lfuHitRate + "%");
+		//System.out.println("LRU Hit rate :" + lruHitRate +"%");
+		//System.out.println("LFU Hit rate :" + lfuHitRate + "%");
 		
 	}
 }
