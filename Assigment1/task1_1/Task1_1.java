@@ -35,12 +35,14 @@ public class Task1_1 {
 		
 		lfu.writeInFile();
 		lru.writeInFile();
-		
-		double lruHitRate = lru.getMiss()/nbProcessedRequest * 100;
-		//double lfuHitRate = lfu.getHit()/nbProcessedRequest * 100;
+
+		double lruHitRate = Double.parseDouble(Integer.toString(lru.getHit()))/nbProcessedRequest * 100.0;
+		double lfuHitRate = Double.parseDouble(Integer.toString(lfu.getHit()))/nbProcessedRequest * 100.0;
 		
 		System.out.println("LRU Hit rate :" + lruHitRate +"%");
-		//System.out.println("LFU Hit rate :" + lfuHitRate + "%");
+		lru.printHitMiss();
+		System.out.println("LFU Hit rate :" + lfuHitRate + "%");
+		lfu.printHitMiss();
 		
 	}
 }

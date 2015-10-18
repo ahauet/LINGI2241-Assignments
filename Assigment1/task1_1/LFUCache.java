@@ -10,15 +10,17 @@ import java.util.PriorityQueue;
 
 public class LFUCache {
 	
-	class LFUElement {
+	static class LFUElement {
 		
 		private String request;
 		//Concatenation between frequency and date
 		private long fdate;
 		private int frequency;
+		private static int indice = 0;
 		
 		public LFUElement(String request, int frequency) {
 			this.request = request;
+			/*
 			Calendar cal = Calendar.getInstance();
 	        SimpleDateFormat sdf = new SimpleDateFormat("HHmmssSS");
 	        String date = sdf.format(cal.getTime());
@@ -27,7 +29,9 @@ public class LFUCache {
 	        		date += "0";
 	        	}
 	        }
-	        String s = Integer.toString(frequency) + date;
+	        */
+	        String s = Integer.toString(frequency) + indice;
+	        indice++;
 	        this.fdate = Long.valueOf(s);
 	        this.frequency = frequency;
 		}
@@ -86,10 +90,13 @@ public class LFUCache {
 			queue.remove(tmp);
 			LFUElement newElement = new LFUElement(tmp.request,tmp.frequency + 1);
 			cache.put(request, newElement);
-			queue.add(newElement);	
+			queue.add(newElement);
+			if(queue.size() != cache.size()) {
+				System.err.println("Violation Cache size and Queue size not equals ");
+			}
 			hit++;
 		} 
-		else if (cache.size() == size) {
+		else if (cache.size() >= size) {
 			LFUElement removeElement = queue.remove();
 			cache.remove(removeElement.request);
 			LFUElement newElement = new LFUElement(request, 1);
@@ -103,10 +110,18 @@ public class LFUCache {
 			cache.put(request, newElement);
 			miss++;
 		}
+		
+		if(cache.size() > 190 || queue.size() > 190) {
+			System.err.println("Violation cache size");
+		}
 	}
 
 	public void print() {
 		System.out.println(queue.toString());
+	}
+	
+	public void printHitMiss() {
+		System.out.println("LFU : Hit = " + hit + " Miss = " + miss);
 	}
 
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {

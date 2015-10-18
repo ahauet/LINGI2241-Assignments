@@ -40,6 +40,10 @@ public class LRUCache {
 		}
 	}
 	
+	public void printHitMiss() {
+		System.out.println("LFU : Hit = " + hit + " Miss = " + miss);
+	}
+	
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter("cache_lru.txt", "UTF-8");
 		Iterator<String> it = list.iterator();
