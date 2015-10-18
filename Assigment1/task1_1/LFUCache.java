@@ -111,7 +111,7 @@ public class LFUCache {
 			miss++;
 		}
 		
-		if(cache.size() > 190 || queue.size() > 190) {
+		if(cache.size() > size || queue.size() > size) {
 			System.err.println("Violation cache size");
 		}
 	}
