@@ -1,3 +1,9 @@
+/**
+ * Implementation of RemoveLargestFirst Cache :
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -8,6 +14,7 @@ import java.util.PriorityQueue;
 
 public class RemoveLargestFirstCache {
 	
+	//CacheElement represent an element in memorys
 	class CacheElement {
 		
 		private String request;
@@ -33,6 +40,7 @@ public class RemoveLargestFirstCache {
 		}
 	}
 	
+	//Comparator of ElementCache
 	class ComparatorElementCache implements Comparator<CacheElement> {
 
 		@Override
@@ -42,92 +50,119 @@ public class RemoveLargestFirstCache {
 		
 	}
 	
+	
 	private ComparatorElementCache comparator = new ComparatorElementCache();
-	private PriorityQueue<CacheElement> queue;
+	//Contains element of the cache and used to see if a element is in the cache or not
 	private HashMap<String, Integer> cache = new HashMap<String, Integer>();
+	//Indicate which element (=the first of he queue) of the cache will be discard if some space is needed
+	private PriorityQueue<CacheElement> queue;
+	//Total size of the cache
 	private int cacheSize;
-	private int cacheFreeSpace;
+	//Free space available in the cache
+	private int freeSpace;
+	//Number of hit
 	private int hit = 0;
+	//Number of miss
+	private int miss =0;
+	//Indicate the number of element needed to warm up the cache
 	private int warmup;
-	private int miss = 0;
+	//Number of byte with a hit
+	private long hitByte = 0; 
+	//Total number of bytes handled by the cache
+	private long cacheByte =0;
 	
 	public RemoveLargestFirstCache(int cacheSize, int warmup) {
-		this.cacheSize = cacheSize;
-		this.cacheFreeSpace = cacheSize;
-		this.warmup = warmup;
 		this.queue = new PriorityQueue<CacheElement>(cacheSize,comparator);
+		this.cacheSize = cacheSize;
+		this.freeSpace = cacheSize;
+		this.warmup = warmup;
 	}
 
-	
 	public int getHit() {
 		return hit;
 	}
+
+	public int getMiss() {
+		return miss;
+	}
 	
-	public void add(String request, int requestSize) {
-		if(requestSize < cacheSize) {
-			CacheElement cacheElement = new CacheElement(request, requestSize);
+	public long getHitByte() {
+		return hitByte;
+	}
+	
+	public long getCacheByte() {
+		return cacheByte;
+	}
+	
+	//Add an element(=request) of size(=elementSize) in the cache
+	public void add(String request, int elementSize) {
+		//If the element has a size bigger then the cache size then it's a miss
+		if(elementSize < cacheSize) {
+			
+			CacheElement cacheElement = new CacheElement(request, elementSize);
+			//If the cache contains the element
 			if(cache.containsKey(request)) {
+				
 				int oldRequestSize = cache.get(request);
-				if(oldRequestSize == requestSize) {
+				//If the size of the request element and the size of
+				//the cache element are the same
+				if(oldRequestSize == elementSize) {
 					if(warmup == 0) {
 						hit++;
+						hitByte += elementSize;
+						cacheByte += elementSize;
 					} else {
 						warmup--;
 					}
 				} else {
 					queue.remove(cacheElement);
-					queue.add(cacheElement);
-					cacheFreeSpace += oldRequestSize;
-					while(cacheFreeSpace < requestSize) {
+					freeSpace += oldRequestSize;
+					//If it's needed, we free up space for the elements
+					while(freeSpace < elementSize) {
 						CacheElement tmpCacheElement = queue.remove();
 						cache.remove(tmpCacheElement.request);
-						cacheFreeSpace += tmpCacheElement.elementSize;
+						freeSpace += tmpCacheElement.elementSize;
 					}
+					queue.add(cacheElement);
 					if(warmup == 0) {
 						miss++;
+						cacheByte += elementSize;
 					} else {
 						warmup--;
 					}
-					cacheFreeSpace -= requestSize;
-					cache.put(request, requestSize);
+					freeSpace -= elementSize;
+					cache.put(request, elementSize);
 				}
+			//If the element is not in the cache, it's a miss
 			} else {
-				while(cacheFreeSpace < requestSize) {
+				//If it's needed, we free up space for the elements
+				while(freeSpace < elementSize) {
 					CacheElement tmpCacheElement = queue.remove();
 					cache.remove(tmpCacheElement.request);
-					cacheFreeSpace += tmpCacheElement.elementSize;
+					freeSpace += tmpCacheElement.elementSize;
 				}
 				if(warmup == 0) {
 					miss++;
+					cacheByte += elementSize;
 				} else {
 					warmup--;
 				}
-				cacheFreeSpace -= requestSize;
-				cache.put(request, requestSize);
+				freeSpace -= elementSize;
+				cache.put(request, elementSize);
 				queue.add(cacheElement);
-			}	
+			}
+		//If the element is too big for the caches
 		} else {
 			if(warmup == 0) {
 				miss++;
+				cacheByte += elementSize;
 			} else {
 				warmup--;
 			}
 		}
 	}
 	
-	public void print() {
-		Iterator<String> it = cache.keySet().iterator();
-		while(it.hasNext()) {
-			String s = it.next();
-			System.out.print(" [ " + s + " - " + cache.get(s) + " ] ");
-		}
-		System.out.println();
-	}
-	
-	public void printHitMiss() {
-		System.out.println("Hit = " + hit + " Miss = " + miss + "Total = "+ (miss+hit));
-	}
-	
+	//Write the cache in a file
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter("cache_size-based.txt", "UTF-8");
 		Iterator<String> it = cache.keySet().iterator();
