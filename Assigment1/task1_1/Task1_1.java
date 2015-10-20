@@ -17,20 +17,16 @@ public class Task1_1 {
 		
 		int nbProcessedRequest = 0;
 		
-		LFUCache lfu = new LFUCache(n);
-		LRUCache lru = new LRUCache(n);
+		LFUCache lfu = new LFUCache(n, x);
+		LRUCache lru = new LRUCache(n, x);
 		
 		
 		String s;
 		while ((s = in.readLine()) != null && s.length() != 0) {
-			if (x == 0) {
-				String request[] = s.split(" ");
-				lfu.add(request[0]);
-				lru.add(request[0]);
-				nbProcessedRequest++;
-			} else {
-				x--;
-			}
+			String request[] = s.split(" ");
+			lfu.add(request[0]);
+			lru.add(request[0]);
+			nbProcessedRequest++;
 		}
 		
 		lfu.writeInFile();

@@ -10,10 +10,12 @@ public class LRUCache {
 	private LinkedList<String> list;
 	private int miss = 0;
 	private int hit = 0;
+	private int warmup;
 	
-	public LRUCache(int cacheSize) {
+	public LRUCache(int cacheSize, int warmup) {
 		this.list = new LinkedList<String>();
 		this.cacheSize = cacheSize;
+		this.warmup = warmup;
 	}
 	
 	public int getHit() {
@@ -28,15 +30,27 @@ public class LRUCache {
 		if (list.contains(s)) {
 			list.remove(s);
 			list.add(s);
-			hit++;
+			if (warmup == 0) {
+				hit++;
+			} else {
+				warmup--;
+			}
 		}
 		else if(list.size() == cacheSize) {
 			list.pop();
 			list.add(s);
-			miss++;
+			if (warmup == 0) {
+				miss++;
+			} else {
+				warmup--;
+			}
 		} else {
 			list.add(s);
-			miss++;
+			if (warmup == 0) {
+				miss++;
+			} else {
+				warmup--;
+			}
 		}
 	}
 	

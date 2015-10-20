@@ -67,13 +67,16 @@ public class LFUCache {
 		
 	private Comparator<LFUElement> comparator = new LFUELementComparator();
 	private LinkedHashMap<String, LFUElement> cache = new LinkedHashMap<String, LFUElement >();
-	private PriorityQueue<LFUElement> queue = new PriorityQueue<LFUElement>(comparator);
+	private PriorityQueue<LFUElement> queue;
 	private int size;
 	private int miss = 0;
 	private int hit = 0;
+	private int warmup;
 	
-	public LFUCache(int size) {
+	public LFUCache(int size, int warmup) {
 		this.size = size;
+		this.warmup = warmup;
+		this.queue = new PriorityQueue<LFUElement>(size, comparator);
 	}
 	
 	public int getHit() {
@@ -94,7 +97,12 @@ public class LFUCache {
 			if(queue.size() != cache.size()) {
 				System.err.println("Violation Cache size and Queue size not equals ");
 			}
-			hit++;
+			if (warmup == 0) {
+				hit++;
+			} else {
+				warmup--;
+			}
+			
 		} 
 		else if (cache.size() >= size) {
 			LFUElement removeElement = queue.remove();
@@ -102,13 +110,21 @@ public class LFUCache {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
 			cache.put(request, newElement);
-			miss++;
+			if (warmup == 0) {
+				miss++;
+			} else {
+				warmup--;
+			}
 		}
 		else {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
 			cache.put(request, newElement);
-			miss++;
+			if (warmup == 0) {
+				miss++;
+			} else {
+				warmup--;
+			}
 		}
 		
 		if(cache.size() > size || queue.size() > size) {
