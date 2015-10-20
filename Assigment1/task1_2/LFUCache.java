@@ -76,6 +76,7 @@ public class LFUCache {
 	
 	public LFUCache(int cacheSize, int warmup) {
 		this.cacheSize = cacheSize;
+		this.freeSpace = cacheSize;
 		this.warmup = warmup;
 		this.queue = new PriorityQueue<LFUElement>(cacheSize,comparator);
 	}

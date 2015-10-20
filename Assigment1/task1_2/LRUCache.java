@@ -10,7 +10,6 @@ public class LRUCache {
 	private LinkedHashMap<String,Integer> cache = new LinkedHashMap<String,Integer>();
 	private int cacheSize;
 	private int freeSpace;
-	private int miss = 0;
 	private int hit = 0;
 	private int warmup;
 	
@@ -24,9 +23,6 @@ public class LRUCache {
 		return hit;
 	}
 	
-	public int getMiss() {
-		return miss;
-	}
 	
 	public void add (String s, int size) {
 		if (cache.containsKey(s)) {

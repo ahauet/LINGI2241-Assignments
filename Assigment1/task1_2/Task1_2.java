@@ -32,12 +32,15 @@ public class Task1_2 {
 		}
 		lfu.writeInFile();
 		lru.writeInFile();
+		rlf.writeInFile();
 
-		double lruHitRate = lru.getMiss()/nbProcessedRequest * 100;
-		double lfuHitRate = lfu.getHit()/nbProcessedRequest * 100;
+		double lruHitRate = lru.getHit()/(nbProcessedRequest-x) * 100;
+		double lfuHitRate = lfu.getHit()/(nbProcessedRequest-x) * 100;
+		double rlfHitRate = rlf.getHit()/(nbProcessedRequest-x) * 100;
 		
 		System.out.println("LRU Hit rate :" + lruHitRate +"%");
 		System.out.println("LFU Hit rate :" + lfuHitRate + "%");
+		System.out.println("Size-based Byte Hit rate :" + rlfHitRate + "%");
 		
 	}
 }

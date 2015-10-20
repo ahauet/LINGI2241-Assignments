@@ -1,3 +1,6 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +47,6 @@ public class RemoveLargestFirstCache {
 	private HashMap<String, Integer> cache = new HashMap<String, Integer>();
 	private int cacheSize;
 	private int cacheFreeSpace;
-	private int miss = 0;
 	private int hit = 0;
 	private int warmup;
 	
@@ -54,10 +56,7 @@ public class RemoveLargestFirstCache {
 		this.warmup = warmup;
 		this.queue = new PriorityQueue<CacheElement>(cacheSize,comparator);
 	}
-	
-	public int getMiss() {
-		return miss;
-	}
+
 	
 	public int getHit() {
 		return hit;
@@ -104,6 +103,15 @@ public class RemoveLargestFirstCache {
 			System.out.print(" [ " + s + " - " + cache.get(s) + " ] ");
 		}
 		System.out.println();
+	}
+	
+	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {
+		PrintWriter writer = new PrintWriter("cache_size-based.txt", "UTF-8");
+		Iterator<String> it = cache.keySet().iterator();
+		while(it.hasNext()) {
+			writer.println(it.next());
+		}
+		writer.close();
 	}
 	
 }
