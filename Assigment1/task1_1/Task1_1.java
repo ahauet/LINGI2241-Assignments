@@ -1,3 +1,9 @@
+/**
+ * Implementation of Task 1.1 :
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

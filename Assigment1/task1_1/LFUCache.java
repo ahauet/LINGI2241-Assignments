@@ -1,9 +1,15 @@
+/**
+ * Implementation of LFU Cache :
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.PriorityQueue;
 
 public class LFUCache {
@@ -53,7 +59,7 @@ public class LFUCache {
 	
 		
 	private Comparator<LFUElement> comparator = new LFUELementComparator();
-	private LinkedHashMap<String, LFUElement> cache = new LinkedHashMap<String, LFUElement >();
+	private HashMap<String, LFUElement> cache = new HashMap<String, LFUElement >();
 	private PriorityQueue<LFUElement> queue;
 	private int size;
 	private int hit = 0;
@@ -70,15 +76,15 @@ public class LFUCache {
 	}
 
 	public void add(String request) {
+		//if the cache contains the element, it's a hit
 		if (cache.containsKey(request)) {
 			LFUElement tmp = cache.get(request);
 			queue.remove(tmp);
+			
 			LFUElement newElement = new LFUElement(tmp.request,tmp.frequency + 1);
 			cache.put(request, newElement);
 			queue.add(newElement);
-			if(queue.size() != cache.size()) {
-				System.err.println("Violation Cache size and Queue size not equals ");
-			}
+			
 			if (warmup == 0) {
 				hit++;
 			} else {
@@ -86,6 +92,8 @@ public class LFUCache {
 			}
 			
 		} 
+		//The cache is full then we need to discard the oldest element
+		//with the lowest frequency. It's a miss
 		else if (cache.size() >= size) {
 			LFUElement removeElement = queue.remove();
 			cache.remove(removeElement.request);
@@ -97,6 +105,8 @@ public class LFUCache {
 				warmup--;
 			}
 		}
+		//The cache is not full then we can add element
+		//It's a miss
 		else {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
@@ -106,16 +116,9 @@ public class LFUCache {
 				warmup--;
 			}
 		}
-		
-		if(cache.size() > size || queue.size() > size) {
-			System.err.println("Violation cache size");
-		}
+
 	}
 
-	public void print() {
-		System.out.println(queue.toString());
-	}
-	
 
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter("cache_lfu.txt", "UTF-8");
