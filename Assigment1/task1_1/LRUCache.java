@@ -8,7 +8,6 @@ public class LRUCache {
 	
 	private int cacheSize;
 	private LinkedList<String> list;
-	private int miss = 0;
 	private int hit = 0;
 	private int warmup;
 	
@@ -20,10 +19,6 @@ public class LRUCache {
 	
 	public int getHit() {
 		return hit;
-	}
-	
-	public int getMiss() {
-		return miss;
 	}
 	
 	public void add (String s) {
@@ -39,23 +34,9 @@ public class LRUCache {
 		else if(list.size() == cacheSize) {
 			list.pop();
 			list.add(s);
-			if (warmup == 0) {
-				miss++;
-			} else {
-				warmup--;
-			}
 		} else {
 			list.add(s);
-			if (warmup == 0) {
-				miss++;
-			} else {
-				warmup--;
-			}
 		}
-	}
-	
-	public void printHitMiss() {
-		System.out.println("LFU : Hit = " + hit + " Miss = " + miss);
 	}
 	
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {

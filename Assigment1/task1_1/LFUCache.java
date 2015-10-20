@@ -1,8 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,31 +11,20 @@ public class LFUCache {
 	static class LFUElement {
 		
 		private String request;
-		//Concatenation between frequency and date
-		private long fdate;
+		private long findice;
 		private int frequency;
 		private static int indice = 0;
 		
 		public LFUElement(String request, int frequency) {
 			this.request = request;
-			/*
-			Calendar cal = Calendar.getInstance();
-	        SimpleDateFormat sdf = new SimpleDateFormat("HHmmssSS");
-	        String date = sdf.format(cal.getTime());
-	        if(date.length() < 9) {
-	        	while(date.length() < 9) {
-	        		date += "0";
-	        	}
-	        }
-	        */
 	        String s = Integer.toString(frequency) + indice;
 	        indice++;
-	        this.fdate = Long.valueOf(s);
+	        this.findice = Long.valueOf(s);
 	        this.frequency = frequency;
 		}
 		
 		public long getFdate() {
-			return fdate;
+			return findice;
 		}
 		
 		public String getRequest() {
@@ -46,7 +33,7 @@ public class LFUCache {
 		
 		@Override
 		public String toString() {
-			return request + " - " + fdate;
+			return request + " - " + findice;
 		}
 		
 		@Override
@@ -60,7 +47,7 @@ public class LFUCache {
 	class LFUELementComparator implements Comparator<LFUElement> {
 		@Override
 		public int compare(LFUElement e1, LFUElement e2) {
-			return (int) (e1.fdate - e2.fdate);
+			return (int) (e1.findice - e2.findice);
 		}	
 	}
 	
@@ -69,7 +56,6 @@ public class LFUCache {
 	private LinkedHashMap<String, LFUElement> cache = new LinkedHashMap<String, LFUElement >();
 	private PriorityQueue<LFUElement> queue;
 	private int size;
-	private int miss = 0;
 	private int hit = 0;
 	private int warmup;
 	
@@ -81,10 +67,6 @@ public class LFUCache {
 	
 	public int getHit() {
 		return hit;
-	}
-	
-	public int getMiss() {
-		return miss;
 	}
 
 	public void add(String request) {
@@ -110,21 +92,11 @@ public class LFUCache {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
 			cache.put(request, newElement);
-			if (warmup == 0) {
-				miss++;
-			} else {
-				warmup--;
-			}
 		}
 		else {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
 			cache.put(request, newElement);
-			if (warmup == 0) {
-				miss++;
-			} else {
-				warmup--;
-			}
 		}
 		
 		if(cache.size() > size || queue.size() > size) {
@@ -136,9 +108,6 @@ public class LFUCache {
 		System.out.println(queue.toString());
 	}
 	
-	public void printHitMiss() {
-		System.out.println("LFU : Hit = " + hit + " Miss = " + miss);
-	}
 
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter("cache_lfu.txt", "UTF-8");

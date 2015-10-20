@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.rmi.registry.LocateRegistry;
 
 public class Task1_1 {
 
@@ -32,13 +31,11 @@ public class Task1_1 {
 		lfu.writeInFile();
 		lru.writeInFile();
 
-		double lruHitRate = Double.parseDouble(Integer.toString(lru.getHit()))/nbProcessedRequest * 100.0;
-		double lfuHitRate = Double.parseDouble(Integer.toString(lfu.getHit()))/nbProcessedRequest * 100.0;
+		double lruHitRate = Double.parseDouble(Integer.toString(lru.getHit()))/(nbProcessedRequest-x) * 100.0;
+		double lfuHitRate = Double.parseDouble(Integer.toString(lfu.getHit()))/(nbProcessedRequest-x) * 100.0;
 		
 		System.out.println("LRU Hit rate :" + lruHitRate +"%");
-		lru.printHitMiss();
 		System.out.println("LFU Hit rate :" + lfuHitRate + "%");
-		lfu.printHitMiss();
 		
 	}
 }
