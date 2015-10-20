@@ -12,10 +12,12 @@ public class LRUCache {
 	private int freeSpace;
 	private int miss = 0;
 	private int hit = 0;
+	private int warmup;
 	
-	public LRUCache(int cacheSize) {
+	public LRUCache(int cacheSize, int warmup) {
 		this.cacheSize = cacheSize;
 		this.freeSpace = cacheSize;
+		this.warmup = warmup;
 	}
 	
 	public int getHit() {
@@ -32,7 +34,11 @@ public class LRUCache {
 			cache.remove(s);
 			cache.put(s, size);
 			if(oldSize == size) {
-				hit++;
+				if(warmup == 0) {
+					hit++;
+				} else {
+					warmup--;
+				}
 			} else {
 				freeSpace += oldSize;
 				while(freeSpace < size) {
@@ -41,7 +47,6 @@ public class LRUCache {
 					cache.remove(request);
 				}
 				freeSpace -= size;
-				miss++;
 			}
 		}
 		else {
@@ -52,7 +57,6 @@ public class LRUCache {
 			}
 			cache.put(s, size);
 			freeSpace -= size;
-			miss++;
 		}
 	}
 	

@@ -40,16 +40,19 @@ public class RemoveLargestFirstCache {
 	}
 	
 	private ComparatorElementCache comparator = new ComparatorElementCache();
-	private PriorityQueue<CacheElement> queue = new PriorityQueue<CacheElement>(comparator);
+	private PriorityQueue<CacheElement> queue;
 	private HashMap<String, Integer> cache = new HashMap<String, Integer>();
 	private int cacheSize;
 	private int cacheFreeSpace;
 	private int miss = 0;
 	private int hit = 0;
+	private int warmup;
 	
-	public RemoveLargestFirstCache(int cacheSize) {
+	public RemoveLargestFirstCache(int cacheSize, int warmup) {
 		this.cacheSize = cacheSize;
 		this.cacheFreeSpace = cacheSize;
+		this.warmup = warmup;
+		this.queue = new PriorityQueue<CacheElement>(cacheSize,comparator);
 	}
 	
 	public int getMiss() {
@@ -65,7 +68,11 @@ public class RemoveLargestFirstCache {
 		if(cache.containsKey(request)) {
 			int oldRequestSize = cache.get(request);
 			if(oldRequestSize == requestSize) {
-				hit++;
+				if(warmup == 0) {
+					hit++;
+				} else {
+					warmup--;
+				}
 			} else {
 				queue.remove(cacheElement);
 				queue.add(cacheElement);
@@ -77,7 +84,6 @@ public class RemoveLargestFirstCache {
 				}
 				cacheFreeSpace -= requestSize;
 				cache.put(request, requestSize);
-				miss++;
 			}
 		} else {
 			while(cacheFreeSpace < requestSize) {
