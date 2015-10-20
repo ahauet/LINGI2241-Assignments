@@ -30,7 +30,7 @@ public class Task1_1 {
 		
 		lfu.writeInFile();
 		lru.writeInFile();
-
+		
 		double lruHitRate = Double.parseDouble(Integer.toString(lru.getHit()))/(nbProcessedRequest-x) * 100.0;
 		double lfuHitRate = Double.parseDouble(Integer.toString(lfu.getHit()))/(nbProcessedRequest-x) * 100.0;
 		

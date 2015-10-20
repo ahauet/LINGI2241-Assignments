@@ -34,8 +34,16 @@ public class LRUCache {
 		else if(list.size() == cacheSize) {
 			list.pop();
 			list.add(s);
+			if (warmup == 0) {
+			} else {
+				warmup--;
+			}
 		} else {
 			list.add(s);
+			if (warmup == 0) {
+			} else {
+				warmup--;
+			}
 		}
 	}
 	

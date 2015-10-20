@@ -92,11 +92,19 @@ public class LFUCache {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
 			cache.put(request, newElement);
+			if (warmup == 0) {
+			} else {
+				warmup--;
+			}
 		}
 		else {
 			LFUElement newElement = new LFUElement(request, 1);
 			queue.add(newElement);
 			cache.put(request, newElement);
+			if (warmup == 0) {
+			} else {
+				warmup--;
+			}
 		}
 		
 		if(cache.size() > size || queue.size() > size) {
