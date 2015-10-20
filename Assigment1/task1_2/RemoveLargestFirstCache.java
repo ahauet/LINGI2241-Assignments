@@ -49,6 +49,7 @@ public class RemoveLargestFirstCache {
 	private int cacheFreeSpace;
 	private int hit = 0;
 	private int warmup;
+	private int miss = 0;
 	
 	public RemoveLargestFirstCache(int cacheSize, int warmup) {
 		this.cacheSize = cacheSize;
@@ -63,37 +64,55 @@ public class RemoveLargestFirstCache {
 	}
 	
 	public void add(String request, int requestSize) {
-		CacheElement cacheElement = new CacheElement(request, requestSize);
-		if(cache.containsKey(request)) {
-			int oldRequestSize = cache.get(request);
-			if(oldRequestSize == requestSize) {
-				if(warmup == 0) {
-					hit++;
+		if(requestSize < cacheSize) {
+			CacheElement cacheElement = new CacheElement(request, requestSize);
+			if(cache.containsKey(request)) {
+				int oldRequestSize = cache.get(request);
+				if(oldRequestSize == requestSize) {
+					if(warmup == 0) {
+						hit++;
+					} else {
+						warmup--;
+					}
 				} else {
-					warmup--;
+					queue.remove(cacheElement);
+					queue.add(cacheElement);
+					cacheFreeSpace += oldRequestSize;
+					while(cacheFreeSpace < requestSize) {
+						CacheElement tmpCacheElement = queue.remove();
+						cache.remove(tmpCacheElement.request);
+						cacheFreeSpace += tmpCacheElement.elementSize;
+					}
+					if(warmup == 0) {
+						miss++;
+					} else {
+						warmup--;
+					}
+					cacheFreeSpace -= requestSize;
+					cache.put(request, requestSize);
 				}
 			} else {
-				queue.remove(cacheElement);
-				queue.add(cacheElement);
-				cacheFreeSpace += oldRequestSize;
 				while(cacheFreeSpace < requestSize) {
 					CacheElement tmpCacheElement = queue.remove();
 					cache.remove(tmpCacheElement.request);
 					cacheFreeSpace += tmpCacheElement.elementSize;
 				}
+				if(warmup == 0) {
+					miss++;
+				} else {
+					warmup--;
+				}
 				cacheFreeSpace -= requestSize;
 				cache.put(request, requestSize);
-			}
+				queue.add(cacheElement);
+			}	
 		} else {
-			while(cacheFreeSpace < requestSize) {
-				CacheElement tmpCacheElement = queue.remove();
-				cache.remove(tmpCacheElement.request);
-				cacheFreeSpace += tmpCacheElement.elementSize;
+			if(warmup == 0) {
+				miss++;
+			} else {
+				warmup--;
 			}
-			cacheFreeSpace -= requestSize;
-			cache.put(request, requestSize);
-			queue.add(cacheElement);
-		}	
+		}
 	}
 	
 	public void print() {
@@ -105,6 +124,10 @@ public class RemoveLargestFirstCache {
 		System.out.println();
 	}
 	
+	public void printHitMiss() {
+		System.out.println("Hit = " + hit + " Miss = " + miss + "Total = "+ (miss+hit));
+	}
+	
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter("cache_size-based.txt", "UTF-8");
 		Iterator<String> it = cache.keySet().iterator();
@@ -113,5 +136,6 @@ public class RemoveLargestFirstCache {
 		}
 		writer.close();
 	}
+	
 	
 }

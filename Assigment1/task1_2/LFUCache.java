@@ -22,14 +22,6 @@ public class LFUCache {
 		public LFUElement(String request, int frequency, int size) {
 			this.size = size;
 			this.request = request;
-			/*Calendar cal = Calendar.getInstance();
-	        SimpleDateFormat sdf = new SimpleDateFormat("HHmmssSS");
-	        String date = sdf.format(cal.getTime());
-	        if(date.length() < 9) {
-	        	while(date.length() < 9) {
-	        		date += "0";
-	        	}
-	        }*/
 	        String s = Integer.toString(frequency) + indice;
 	        indice++;
 	        this.fdate = Long.valueOf(s);
@@ -70,8 +62,8 @@ public class LFUCache {
 	private PriorityQueue<LFUElement> queue;
 	private int cacheSize;
 	private int freeSpace;
-	private int miss = 0;
 	private int hit = 0;
+	private int miss =0;
 	private int warmup;
 	
 	public LFUCache(int cacheSize, int warmup) {
@@ -84,26 +76,48 @@ public class LFUCache {
 	public int getHit() {
 		return hit;
 	}
-	
-	public int getMiss() {
-		return miss;
-	}
 
 	public void add(String request, int size) {
-		if (cache.containsKey(request)) {
-			LFUElement tmp = cache.get(request);
-			if(tmp.size == size) {
-				if(warmup == 0) {
-					hit++;
+		
+		if(size < cacheSize) {
+			if (cache.containsKey(request)) {
+				LFUElement tmp = cache.get(request);
+				if(tmp.size == size) {
+					if(warmup == 0) {
+						hit++;
+					} else {
+						warmup--;
+					}
 				} else {
-					warmup--;
+					while(freeSpace < size) {
+						LFUElement removeElement = queue.remove();
+						freeSpace += removeElement.size;
+						cache.remove(removeElement.request);
+					}
+					freeSpace += tmp.size;
+					freeSpace -= size;
+					if(warmup == 0) {
+						miss++;
+					} else {
+						warmup--;
+					}
 				}
-			} else {
+				queue.remove(tmp);
+				LFUElement newElement = new LFUElement(tmp.request,tmp.frequency + 1, size);
+				cache.put(request, newElement);
+				queue.add(newElement);	
+				
+			} 
+			else {								
 				while(freeSpace < size) {
 					LFUElement removeElement = queue.remove();
 					freeSpace += removeElement.size;
 					cache.remove(removeElement.request);
 				}
+				
+				LFUElement newElement = new LFUElement(request, 1,size);
+				queue.add(newElement);
+				cache.put(request, newElement);
 				freeSpace -= size;
 				if(warmup == 0) {
 					miss++;
@@ -111,23 +125,7 @@ public class LFUCache {
 					warmup--;
 				}
 			}
-			queue.remove(tmp);
-			LFUElement newElement = new LFUElement(tmp.request,tmp.frequency + 1, size);
-			cache.put(request, newElement);
-			queue.add(newElement);	
-			
-		} 
-		else {
-			while(freeSpace < size) {
-				LFUElement removeElement = queue.remove();
-				freeSpace += removeElement.size;
-				cache.remove(removeElement.request);
-			}
-			
-			LFUElement newElement = new LFUElement(request, 1,size);
-			queue.add(newElement);
-			cache.put(request, newElement);
-			freeSpace -= size;
+		} else {
 			if(warmup == 0) {
 				miss++;
 			} else {
@@ -135,9 +133,13 @@ public class LFUCache {
 			}
 		}
 	}
-
+	
 	public void print() {
 		System.out.println(queue.toString());
+	}
+	
+	public void printHitMiss() {
+		System.out.println("Hit = " + hit + " Miss = " + miss + "Total = "+ (miss+hit));
 	}
 
 	public void writeInFile() throws FileNotFoundException, UnsupportedEncodingException {

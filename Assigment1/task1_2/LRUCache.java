@@ -11,6 +11,7 @@ public class LRUCache {
 	private int cacheSize;
 	private int freeSpace;
 	private int hit = 0;
+	private int miss = 0;
 	private int warmup;
 	
 	public LRUCache(int cacheSize, int warmup) {
@@ -25,34 +26,52 @@ public class LRUCache {
 	
 	
 	public void add (String s, int size) {
-		if (cache.containsKey(s)) {
-			int oldSize = cache.get(s);
-			cache.remove(s);
-			cache.put(s, size);
-			if(oldSize == size) {
-				if(warmup == 0) {
-					hit++;
+		if(size < cacheSize) {
+			if (cache.containsKey(s)) {
+				int oldSize = cache.get(s);
+				cache.remove(s);
+				cache.put(s, size);
+				if(oldSize == size) {
+					if(warmup == 0) {
+						hit++;
+					} else {
+						warmup--;
+					}
 				} else {
-					warmup--;
+					freeSpace += oldSize;
+					while(freeSpace < size) {
+						String request = cache.keySet().iterator().next();
+						freeSpace += cache.get(request);
+						cache.remove(request);
+					}
+					freeSpace -= size;
+					if(warmup == 0) {
+						miss++;
+					} else {
+						warmup--;
+					}
 				}
-			} else {
-				freeSpace += oldSize;
+			}
+			else {
 				while(freeSpace < size) {
 					String request = cache.keySet().iterator().next();
 					freeSpace += cache.get(request);
 					cache.remove(request);
 				}
+				cache.put(s, size);
 				freeSpace -= size;
+				if(warmup == 0) {
+					miss++;
+				} else {
+					warmup--;
+				}
 			}
-		}
-		else {
-			while(freeSpace < size) {
-				String request = cache.keySet().iterator().next();
-				freeSpace += cache.get(request);
-				cache.remove(request);
+		} else {
+			if(warmup == 0) {
+				miss++;
+			} else {
+				warmup--;
 			}
-			cache.put(s, size);
-			freeSpace -= size;
 		}
 	}
 	
@@ -73,6 +92,10 @@ public class LRUCache {
 			System.out.print(" [ "+ key +"-"+ cache.get(key) +" ] " );
 		}
 		System.out.println(" }");
+	}
+	
+	public void printHitMiss() {
+		System.out.println("Hit = " + hit + " Miss = " + miss + "Total = "+ (miss+hit));
 	}
 	
 }
