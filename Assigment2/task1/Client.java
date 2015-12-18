@@ -57,6 +57,7 @@ public class Client {
 				sizeReaded += bytesRead;
 			}
 		} 
+		System.out.println(sizeReaded);
 
 		
 		BufferedImage outputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
