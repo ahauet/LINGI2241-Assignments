@@ -24,7 +24,7 @@ public class Server {
 		Socket socket = null;
 		
 		try {
-			serverSocket = new ServerSocket(13085);
+			serverSocket = new ServerSocket(13085,1);
 			while (true) {
 				System.out.println("Waiting...");
 				try {

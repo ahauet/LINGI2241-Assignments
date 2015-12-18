@@ -13,16 +13,16 @@ import javax.imageio.ImageIO;
 
 public class Client {
 	static int bytesRead;
-
-	public static void main(String[] args) throws Exception {
-
+	
+	public static void ClientRequest(String nameFile) throws Exception {
+		
 		Socket socket = new Socket("localhost", 13085);
 
 		//Send to server
 
 		OutputStream outputStream = socket.getOutputStream();
 		// Read the image from the file
-		BufferedImage image = ImageIO.read(new File("picture2.jpg"));
+		BufferedImage image = ImageIO.read(new File(nameFile));
 		// Create the byteArrayOutputStream
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		// Convert BufferedImage to byteArrayOutputStream
@@ -61,13 +61,19 @@ public class Client {
 
 		
 		BufferedImage outputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
-		ImageIO.write(outputImage, "jpg", new File("picture1_received2.jpg"));
+		ImageIO.write(outputImage, "jpg", new File(nameFile+"_received2.jpg"));
 		System.out.println("close socket");
 
 
 
 		socket.close();
+		
+	}
 
+	public static void main(String[] args) throws Exception {
+		ClientRequest("picture2.jpg");
+		ClientRequest("picture1.jpg");
+		
 	}
 
 }
