@@ -88,7 +88,7 @@ public class Server {
 					
 					
 					
-					ImageIO.write(inputImage, "png", byteArrayOutputStream);
+					ImageIO.write(outputImage, "png", byteArrayOutputStream);
 					System.out.println("size 4 :"+ byteArrayOutputStream.size());
 					// Convert size in byte[]
 					byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
