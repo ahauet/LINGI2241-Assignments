@@ -53,7 +53,6 @@ public class Client2 {
       buffuredInputStream.read(byteArrayToSend,0,byteArrayToSend.length);
       outputStream = sock.getOutputStream();
       System.out.println("Sending to server" + FILE_TO_SEND + "(" + byteArrayToSend.length + " bytes)");
-      
       outputStream.write(byteArrayToSend,0,byteArrayToSend.length);
       outputStream.flush();
       System.out.println("Done.");
