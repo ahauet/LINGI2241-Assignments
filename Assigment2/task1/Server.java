@@ -1,4 +1,5 @@
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,6 +11,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 
 public class Server {
 
@@ -58,6 +61,7 @@ public class Server {
 
 						inputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
 						outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
+						System.out.println("with" + inputImage.getWidth() + "height" + inputImage.getHeight());
 						for (int x = 0; x < inputImage.getWidth(); x++) {
 							for (int y = 0; y < inputImage.getHeight(); y++) {
 								int rgb = inputImage.getRGB(x, y);
@@ -77,10 +81,14 @@ public class Server {
 
 					OutputStream outputStream = socket.getOutputStream();
 					// Create the byteArrayOutputStream
+					//byte[] byteArrayOutputStream = new byte[sizeIn];
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 					// Convert BufferedImage to byteArrayOutputStream
 					//byteArrayOutputStream = ((DataBufferByte) inputImage.getData().getDataBuffer()).getData();
-					ImageIO.write(inputImage, "jpg", byteArrayOutputStream);
+					
+					
+					
+					ImageIO.write(inputImage, "png", byteArrayOutputStream);
 					System.out.println("size 4 :"+ byteArrayOutputStream.size());
 					// Convert size in byte[]
 					byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();

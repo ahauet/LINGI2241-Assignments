@@ -89,7 +89,7 @@ public class Server2 {
                   }
               }
         	  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	  ImageIO.write(outputImage, "jpg", baos);
+        	  ImageIO.write(outputImage, "png", baos);
         	  byteToSend = baos.toByteArray();
         	  System.out.println("flag3");
         	  //byte[] imageBytes = ((DataBufferByte) outputImage.getData().getDataBuffer()).getData();

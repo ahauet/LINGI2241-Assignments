@@ -49,26 +49,18 @@ public class Client {
 
 		OutputStream outputStream = socket.getOutputStream();
 		// Read the image from the file
-		File fileToSend = new File (files[problem_number-1]);
-		byte [] byteArrayToSend  = new byte [(int)fileToSend.length()];
-		FileInputStream fileInputStream = new FileInputStream(fileToSend);
-	    BufferedInputStream buffuredInputStream = new BufferedInputStream(fileInputStream);
-	    buffuredInputStream.read(byteArrayToSend,0,byteArrayToSend.length);
-		
-		System.out.println(byteArrayToSend.length);
-		
-		
-		//BufferedImage image = ImageIO.read(new File(files[problem_number-1]));
+		BufferedImage image = ImageIO.read(new File(files[problem_number-1]));
 		// Create the byteArrayOutputStream
-		//ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		// Convert BufferedImage to byteArrayOutputStream
-		//ImageIO.write(image, "jpg", byteArrayOutputStream);
+		ImageIO.write(image, "png", byteArrayOutputStream);
 		// Convert size in byte[]
-		byte[] size = ByteBuffer.allocate(4).putInt((int)fileToSend.length()).array();
+		System.out.println("size avant envoit :"+byteArrayOutputStream.size());
+		byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 		// Send size to server
 		outputStream.write(size);
 		// Send image to server
-		outputStream.write(byteArrayToSend);
+		outputStream.write(byteArrayOutputStream.toByteArray());
 		outputStream.flush();
 		
 		//Receive to server
@@ -93,10 +85,10 @@ public class Client {
 				sizeReaded += bytesRead;
 			}
 		} 
-
+		System.out.println("size apres reçu :"+imageAr.length);
 		
 		BufferedImage outputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
-		ImageIO.write(outputImage, "jpg", new File(result_files[problem_number-1]));
+		ImageIO.write(outputImage, "png", new File(result_files[problem_number-1]));
 		System.out.println("close socket");
 
 
