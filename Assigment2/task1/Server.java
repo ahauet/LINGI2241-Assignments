@@ -48,13 +48,15 @@ public class Server {
 						if(bytesRead >= 0){
 							sizeReaded += bytesRead;
 						}
-					} 
+					}
+					
+					System.out.println("size2 :" + imageAr.length);//S imageAr.length
 
-
+					BufferedImage inputImage = null;
 					// change the image in color to black and white
 					try {
 
-						BufferedImage inputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
+						inputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
 						outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
 						for (int x = 0; x < inputImage.getWidth(); x++) {
 							for (int y = 0; y < inputImage.getHeight(); y++) {
@@ -77,7 +79,9 @@ public class Server {
 					// Create the byteArrayOutputStream
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 					// Convert BufferedImage to byteArrayOutputStream
-					ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
+					//byteArrayOutputStream = ((DataBufferByte) inputImage.getData().getDataBuffer()).getData();
+					ImageIO.write(inputImage, "jpg", byteArrayOutputStream);
+					System.out.println("size 4 :"+ byteArrayOutputStream.size());
 					// Convert size in byte[]
 					byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 					// Send size to server
