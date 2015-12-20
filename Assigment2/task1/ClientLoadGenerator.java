@@ -18,7 +18,6 @@ import javax.swing.plaf.SliderUI;
 public class ClientLoadGenerator {
 	static int bytesRead;
 	
-	static int clientNumber = 0;
 	// Each file names in this array correspond to a problem 
 	// For example : 	file name at index 0 is the problem number 1
 	//								file name at index x is the problem number x+1
@@ -36,10 +35,11 @@ public class ClientLoadGenerator {
 	public static double getDelay() {
 		return  Math.log(1-rand.nextDouble())/(-lambda);
 	}
-	public static void Client(String fileName) throws Exception
+	public static void Client(String fileName,int clientNumber) throws Exception
 	{
 		Socket socket = null;
 		OutputStream outputStream = null;
+		InputStream inputStream = null;
 		BufferedImage image = null;
 		ByteArrayOutputStream byteArrayOutputStream = null;
 		long beginTime = 0;
@@ -48,7 +48,6 @@ public class ClientLoadGenerator {
 		long timeToReceive = 0;
 		long timeBeforeWriteOnDisk = 0;
 		long timeToWriteOnDisk = 0;
-		int clientNumberRegister = clientNumber;
 		try{
 			
 			beginTime = System.currentTimeMillis();
@@ -82,7 +81,7 @@ public class ClientLoadGenerator {
 			
 			timeBeforeReceive = System.currentTimeMillis();
 
-			InputStream inputStream = socket.getInputStream();
+			inputStream = socket.getInputStream();
 			// size of the in byte[] of the file received
 			byte[] sizeAr = new byte[4];
 			// read the size
@@ -113,11 +112,12 @@ public class ClientLoadGenerator {
 			timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		}
 		finally{
+			if (inputStream != null) inputStream.close();
 			if (outputStream != null) outputStream.close();
 			if (socket!=null) socket.close();
 			long totalTimeClient = System.currentTimeMillis() - beginTime;
 			// print measurements
-			System.out.println("Client "+ clientNumberRegister+ " dificulty : "+fileName);
+			System.out.println("Client "+ clientNumber+ " dificulty : "+fileName);
 			System.out.println("time to send " +timeToSend+" ms");
 			System.out.println("Time to reveive :" + timeToReceive + " ms");
 			System.out.println("Time to write on disk :" + timeToWriteOnDisk + " ms");
@@ -128,14 +128,15 @@ public class ClientLoadGenerator {
 
 	public static void main(String[] args) throws Exception {
 		final Random r = new Random();
+		int clientNumber=0;
 		
 		while(clientNumber<100) {
-
+			final int registerNumber = clientNumber;
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					int problem_number = r.nextInt(files.length - 1);
 					try {
-						Client(files[problem_number]);
+						Client(files[problem_number],registerNumber);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

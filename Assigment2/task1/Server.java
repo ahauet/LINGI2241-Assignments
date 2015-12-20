@@ -21,13 +21,15 @@ public class Server {
 		int numClient = 0;
 		
 		try {
-			serverSocket = new ServerSocket(13085,100);
+			serverSocket = new ServerSocket(13085,0);
 			while (true) {
 				System.out.println("Waiting...");
 				int bytesRead;
 				BufferedImage outputImage = null;
 				Socket socket = null;
 				long timeBeforeReading = 0;
+				InputStream inputStream = null;
+				OutputStream outputStream = null;
 				try {
 					socket = serverSocket.accept();
 					timeBeforeReading = System.currentTimeMillis();
@@ -40,7 +42,7 @@ public class Server {
 
 
 					// create input stream
-					InputStream inputStream = socket.getInputStream();
+					inputStream = socket.getInputStream();
 					// size of the in byte[] of the file received
 					byte[] sizeAr = new byte[4];
 					// read the size
@@ -106,7 +108,7 @@ public class Server {
 					// Time before sending the image
 					long timeBeforeSend = System.currentTimeMillis();
 					// Create output stream
-					OutputStream outputStream = socket.getOutputStream();
+					outputStream = socket.getOutputStream();
 					// Send size to server
 					outputStream.write(sizeOut);
 					// Send image to server
@@ -120,10 +122,13 @@ public class Server {
 					System.out.println("close the socket");
 				}
 				finally {
+					if (inputStream!=null) inputStream.close();
+					if (outputStream!=null) outputStream.close();
 					if (socket!=null){ 
 						socket.close();
+						
 						long timeServer = System.currentTimeMillis()-timeBeforeReading;
-						System.out.println("time client "+ numClient +" in server : " + timeServer + " ms");
+						System.out.println("time client "+ numClient +" in server : " + timeServer + " ms\n");
 					}
 				}
 			}
