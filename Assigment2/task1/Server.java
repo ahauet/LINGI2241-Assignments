@@ -1,8 +1,6 @@
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,25 +9,27 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
+
 
 public class Server {
 
 
 
 	public static void main(String[] args) throws Exception {
-		int bytesRead;
-		BufferedImage outputImage = null;
-		Socket socket = null;
+		
 		ServerSocket serverSocket = null;
-
+		int numClient = 0;
 		try {
 			serverSocket = new ServerSocket(13085);
 			while (true) {
 				System.out.println("Waiting...");
+				int bytesRead;
+				BufferedImage outputImage = null;
+				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
+					numClient = numClient + 1;
+					System.out.println("Client number : "+numClient );
 					InputStream inputStream = socket.getInputStream();
 
 					System.out.println("Reading: " + System.currentTimeMillis());
@@ -54,7 +54,7 @@ public class Server {
 					}
 					
 					System.out.println("size2 :" + imageAr.length);//S imageAr.length
-
+					long timeBeforeCalculation =  System.currentTimeMillis();
 					BufferedImage inputImage = null;
 					// change the image in color to black and white
 					try {
@@ -76,6 +76,8 @@ public class Server {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					long calculationTime =  System.currentTimeMillis()-timeBeforeCalculation;
+					System.out.println("Calculation time : " + calculationTime + "milliSecond"); 
 
 					// Send the image
 
