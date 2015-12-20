@@ -16,23 +16,31 @@ public class Server {
 
 
 	public static void main(String[] args) throws Exception {
-		
+
 		ServerSocket serverSocket = null;
 		int numClient = 0;
+		
 		try {
-			serverSocket = new ServerSocket(13085);
+			serverSocket = new ServerSocket(13085,100);
 			while (true) {
 				System.out.println("Waiting...");
 				int bytesRead;
 				BufferedImage outputImage = null;
 				Socket socket = null;
+				long timeBeforeReading = 0;
 				try {
 					socket = serverSocket.accept();
+					timeBeforeReading = System.currentTimeMillis();
 					numClient = numClient + 1;
 					System.out.println("Client number : "+numClient );
-					InputStream inputStream = socket.getInputStream();
 
-					System.out.println("Reading: " + System.currentTimeMillis());
+					////////////////////
+					// Read the image //
+					////////////////////
+
+
+					// create input stream
+					InputStream inputStream = socket.getInputStream();
 					// size of the in byte[] of the file received
 					byte[] sizeAr = new byte[4];
 					// read the size
@@ -52,8 +60,13 @@ public class Server {
 							sizeReaded += bytesRead;
 						}
 					}
-					
-					System.out.println("size2 :" + imageAr.length);//S imageAr.length
+					long timeReading = System.currentTimeMillis() - timeBeforeReading;
+					System.out.println("time to read : " + timeReading + " ms");
+
+					///////////////////
+					// Convert image //
+					///////////////////
+
 					long timeBeforeCalculation =  System.currentTimeMillis();
 					BufferedImage inputImage = null;
 					// change the image in color to black and white
@@ -61,7 +74,6 @@ public class Server {
 
 						inputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
 						outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
-						System.out.println("with" + inputImage.getWidth() + "height" + inputImage.getHeight());
 						for (int x = 0; x < inputImage.getWidth(); x++) {
 							for (int y = 0; y < inputImage.getHeight(); y++) {
 								int rgb = inputImage.getRGB(x, y);
@@ -76,36 +88,43 @@ public class Server {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					long calculationTime =  System.currentTimeMillis()-timeBeforeCalculation;
-					System.out.println("Calculation time : " + calculationTime + "milliSecond"); 
 
-					// Send the image
-
-					OutputStream outputStream = socket.getOutputStream();
 					// Create the byteArrayOutputStream
-					//byte[] byteArrayOutputStream = new byte[sizeIn];
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 					// Convert BufferedImage to byteArrayOutputStream
-					//byteArrayOutputStream = ((DataBufferByte) inputImage.getData().getDataBuffer()).getData();
-					
-					
-					
 					ImageIO.write(outputImage, "png", byteArrayOutputStream);
-					System.out.println("size 4 :"+ byteArrayOutputStream.size());
 					// Convert size in byte[]
 					byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
+
+					long calculationTime =  System.currentTimeMillis()-timeBeforeCalculation;
+					System.out.println("Calculation time : " + calculationTime + " ms"); 
+
+					////////////////////
+					// Send the image //
+					////////////////////
+
+					// Time before sending the image
+					long timeBeforeSend = System.currentTimeMillis();
+					// Create output stream
+					OutputStream outputStream = socket.getOutputStream();
 					// Send size to server
 					outputStream.write(sizeOut);
 					// Send image to server
 					outputStream.write(byteArrayOutputStream.toByteArray());
 					outputStream.flush();
 
-					System.out.println("Close: " + System.currentTimeMillis());
+					long timeToSend = System.currentTimeMillis()-timeBeforeSend;
+					System.out.println("Time to send : " + timeToSend + " ms");
+
 
 					System.out.println("close the socket");
 				}
 				finally {
-					if (socket!=null) socket.close();
+					if (socket!=null){ 
+						socket.close();
+						long timeServer = System.currentTimeMillis()-timeBeforeReading;
+						System.out.println("time client "+ numClient +" in server : " + timeServer + " ms");
+					}
 				}
 			}
 		}

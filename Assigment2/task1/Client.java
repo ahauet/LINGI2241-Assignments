@@ -1,11 +1,7 @@
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -42,10 +38,17 @@ public class Client {
 			System.exit(-1);
 		}
 		
+		System.out.println("Client dificulty : "+args[0]);
 		
+		long beginTime = System.currentTimeMillis();
+		
+		// connect to server
 		Socket socket = new Socket("localhost", 13085);
-
-		//Send to server
+		
+		
+		//////////////////////////
+		// Send image to server //
+		//////////////////////////
 
 		OutputStream outputStream = socket.getOutputStream();
 		// Read the image from the file
@@ -55,7 +58,6 @@ public class Client {
 		// Convert BufferedImage to byteArrayOutputStream
 		ImageIO.write(image, "png", byteArrayOutputStream);
 		// Convert size in byte[]
-		System.out.println("size avant envoit :"+byteArrayOutputStream.size());
 		byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 		// Send size to server
 		outputStream.write(size);
@@ -63,7 +65,14 @@ public class Client {
 		outputStream.write(byteArrayOutputStream.toByteArray());
 		outputStream.flush();
 		
-		//Receive to server
+		long timeToSend = System.currentTimeMillis()-beginTime;
+		
+		
+		///////////////////////////////
+		// Receive image from server //
+		///////////////////////////////
+		
+		long timeBeforeReceive = System.currentTimeMillis();
 		
 		InputStream inputStream = socket.getInputStream();
 		// size of the in byte[] of the file received
@@ -84,16 +93,26 @@ public class Client {
 			if(bytesRead >= 0){
 				sizeReaded += bytesRead;
 			}
-		} 
-		System.out.println("size apres reçu :"+imageAr.length);
+		}
+		long timeToReceive = System.currentTimeMillis()- timeBeforeReceive;
+		
 		
 		BufferedImage outputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
+		
+		long timeBeforeWriteOnDisk =  System.currentTimeMillis();
+		
 		ImageIO.write(outputImage, "png", new File(result_files[problem_number-1]));
-		System.out.println("close socket");
-
-
+		
+		long timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
+		
 
 		socket.close();
+		long totalTimeClient = System.currentTimeMillis() - beginTime;
+		// print measurements
+		System.out.println("time to send " +timeToSend+" ms");
+		System.out.println("Time to reveive :" + timeToReceive + " ms");
+		System.out.println("Time to write on disk :" + timeToWriteOnDisk + " ms");
+		System.out.println("Total time client :" + totalTimeClient + " ms");
 
 	}
 
