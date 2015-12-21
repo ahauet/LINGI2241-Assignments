@@ -18,7 +18,7 @@ public class ServerWithCustomBacklog {
 
 	public static void main(String[] args) throws IOException {
 		
-		ServerSocket server = new ServerSocket(13085);
+		final ServerSocket server = new ServerSocket(13085,0);
 		
 		pq = new PriorityBlockingQueue<Element>(10, new Comparator<Element>() {
 
@@ -91,6 +91,7 @@ public class ServerWithCustomBacklog {
 							
 							if (element.getClient_socket() != null) {
 								element.getClient_socket().close();
+								System.out.println("Response time : " + (System.currentTimeMillis()-element.getCreate_time())+" ms\n");
 							}
 							
 						} catch (IOException e) {
@@ -111,10 +112,12 @@ class Element {
 	private Socket client_socket;
   private InputStream client_in;
   private OutputStream client_out;
+  private long create_time;
   private byte[] image;
   
   public Element(Socket socket) {
 		try {
+			this.create_time = System.currentTimeMillis();
 			this.client_socket = socket;
 			this.client_in = client_socket.getInputStream();
 			this.client_out = client_socket.getOutputStream();
@@ -152,6 +155,10 @@ class Element {
 	
   public Socket getClient_socket() {
 		return client_socket;
+	}
+  
+  public long getCreate_time() {
+		return create_time;
 	}
 	
 }
