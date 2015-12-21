@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-public class ServerWithCustomBacklog {
+public class ServerWithCustomBacklogWithoutSort {
 
 	private static List<Element> pq;
 
@@ -104,14 +104,14 @@ public class ServerWithCustomBacklog {
 	}
 }
 
-class Element {
+class Element2 {
 
 	private Socket client_socket;
   private InputStream client_in;
   private OutputStream client_out;
   private byte[] image;
 
-  public Element(Socket socket) {
+  public Element2(Socket socket) {
 		try {
 			this.client_socket = socket;
 			this.client_in = client_socket.getInputStream();

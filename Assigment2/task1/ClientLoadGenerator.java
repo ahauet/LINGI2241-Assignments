@@ -21,13 +21,10 @@ public class ClientLoadGenerator {
 	// Each file names in this array correspond to a problem 
 	// For example : 	file name at index 0 is the problem number 1
 	//								file name at index x is the problem number x+1
-	private static String[] files = {"picture50x32.jpg","picture75x48.jpg", 
-		"picture150x96.jpg", "picture250x160.jpg", "picture400x300.jpg",
-		"picture640x409.jpg", "picture800x511.jpg", "picture1024x645.jpg", "picture1600x1022.jpg"};
-	// Name for the solution of a problem
-	private static String[] result_files = {"picture50x32_result.jpg","picture75x48_result.jpg", 
-		"picture150x96_result.jpg", "picture250x160_result.jpg", "picture400x300_result.jpg",
-		"picture640x409_result.jpg", "picture800x511_result.jpg", "picture1024x645_result.jpg", "picture1600x1022_result.jpg"};
+	private static String[] files = {"50x34.png","75x51.png","105x102.png","300x205.png","700x478.png", "500x341.png"
+			,"1000x683.png","1200x820.png","1400x957.png","1600x1094.png","1800x1231.png","2000x1368.png",
+			"2400x1641.png","2800x1915.png","3200x2188.png","3600x2462.png	","4000x2735.png","4500x3077.png	"
+			,"6000x4103.png","8134x5563.png"};
 
 	private static Random rand = new Random();
 	private static double lambda = 0.5;
@@ -107,7 +104,7 @@ public class ClientLoadGenerator {
 			
 			timeBeforeWriteOnDisk =  System.currentTimeMillis();
 			
-			ImageIO.write(outputImage, "png", new File("result_"+fileName));
+			ImageIO.write(outputImage, "png", new File("final_"+fileName));
 			
 			timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		}
