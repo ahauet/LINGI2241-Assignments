@@ -1,11 +1,7 @@
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -13,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.plaf.SliderUI;
 
 public class ClientLoadGenerator {
 	static int bytesRead;
@@ -23,16 +18,17 @@ public class ClientLoadGenerator {
 	//								file name at index x is the problem number x+1
 	private static String[] files = {"50x34.png","75x51.png","105x102.png","300x205.png","700x478.png", "500x341.png"
 			,"1000x683.png","1200x820.png","1400x957.png","1600x1094.png","1800x1231.png","2000x1368.png",
-			"2400x1641.png","2800x1915.png","3200x2188.png","3600x2462.png	","4000x2735.png","4500x3077.png	"
+			"2400x1641.png","2800x1915.png","3200x2188.png","3600x2462.png","4000x2735.png","4500x3077.png"
 			,"6000x4103.png","8134x5563.png"};
 
 	private static Random rand = new Random();
-	private static double lambda = 0.5;
+	private static double lambda = 0.5; // Default value 
 
 	public static double getDelay() {
 		return  Math.log(1-rand.nextDouble())/(-lambda);
 	}
-	public static void Client(String fileName,int clientNumber) throws Exception
+	
+	public static void Client(String fileName,int clientNumber, String address) throws Exception
 	{
 		Socket socket = null;
 		OutputStream outputStream = null;
@@ -49,7 +45,7 @@ public class ClientLoadGenerator {
 			
 			beginTime = System.currentTimeMillis();
 			// Connect to server 
-			socket = new Socket("localhost", 13085);
+			socket = new Socket(address, 13085);
 
 			//////////////////////////
 			// Send image to server //
@@ -109,6 +105,7 @@ public class ClientLoadGenerator {
 			timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		}
 		finally{
+			if (inputStream != null) inputStream.close();
 			if (outputStream != null) outputStream.close();
 			if (socket!=null) socket.close();
 			long totalTimeClient = System.currentTimeMillis() - beginTime;
@@ -123,6 +120,15 @@ public class ClientLoadGenerator {
 	}
 
 	public static void main(String[] args) throws Exception {
+		
+		if(args.length != 2) {
+			System.err.println("Usage : java client lambda address");
+			System.exit(-1);
+		}
+		
+		lambda = Integer.getInteger(args[0]);
+		String address = args[1];
+		
 		final Random r = new Random();
 		int clientNumber=0;
 		
@@ -132,11 +138,10 @@ public class ClientLoadGenerator {
 				public void run() {
 					int problem_number = r.nextInt(files.length - 1);
 					try {
-						Client(files[problem_number],registerNumber);
+						Client(files[problem_number],registerNumber, address);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}// code goes here.
+					}
 				}
 			}); 
 

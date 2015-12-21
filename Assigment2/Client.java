@@ -14,16 +14,16 @@ public class Client {
 	// Each file names in this array correspond to a problem 
 	// For example : 	file name at index 0 is the problem number 1
 	//								file name at index x is the problem number x+1
-	private static String[] files = {"50x34.png","75x51.png","105x102.png","300x205.png","700x478.png", "500x341.png"
+	private static String[] files = {"50x34.png","75x51.png","105x102.png","300x205.png", "500x341.png","700x478.png"
 			,"1000x683.png","1200x820.png","1400x957.png","1600x1094.png","1800x1231.png","2000x1368.png",
-			"2400x1641.png","2800x1915.png","3200x2188.png","3600x2462.png	","4000x2735.png","4500x3077.png	"
+			"2400x1641.png","2800x1915.png","3200x2188.png","3600x2462.png","4000x2735.png","4500x3077.png"
 			,"6000x4103.png","8134x5563.png"};
 
 	public static void main(String[] args) throws Exception {
 		
 		// Check the usage, we need one argument => the problem number
-		if(args.length != 1) {
-			System.err.println("Usage : java client problem_number");
+		if(args.length != 2) {
+			System.err.println("Usage : java client problem_number address");
 			System.exit(-1);
 		}
 		
@@ -35,13 +35,12 @@ public class Client {
 			System.exit(-1);
 		}
 		
-		System.out.println("Client dificulty : "+args[0]);
+		System.out.println("Client difficulty : "+args[0]);
 		
 		long beginTime = System.currentTimeMillis();
 		
 		// connect to server
-		Socket socket = new Socket("localhost", 13085);
-		
+		Socket socket = new Socket(args[1], 30000);
 		
 		//////////////////////////
 		// Send image to server //
@@ -63,7 +62,6 @@ public class Client {
 		outputStream.flush();
 		
 		long timeToSend = System.currentTimeMillis()-beginTime;
-		
 		
 		///////////////////////////////
 		// Receive image from server //
