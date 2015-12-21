@@ -109,7 +109,6 @@ public class ClientLoadGenerator {
 			timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		}
 		finally{
-			if (inputStream != null) inputStream.close();
 			if (outputStream != null) outputStream.close();
 			if (socket!=null) socket.close();
 			long totalTimeClient = System.currentTimeMillis() - beginTime;
