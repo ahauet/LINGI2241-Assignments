@@ -54,12 +54,15 @@ public class Server {
 					// size of the image already read
 					int sizeReaded = 0;
 					// while the image is not completely read
-					while(sizeReaded != sizeIn){
+					while(sizeReaded != sizeIn ){
 						// read the image
 						bytesRead = inputStream.read(imageAr, sizeReaded, sizeIn-sizeReaded);
-
-						if(bytesRead >= 0){
+						
+						if(bytesRead >= 0 ){
 							sizeReaded += bytesRead;
+						}
+						else if (bytesRead == -1) {
+							break;
 						}
 					}
 					long timeReading = System.currentTimeMillis() - timeBeforeReading;
@@ -94,7 +97,7 @@ public class Server {
 					// Create the byteArrayOutputStream
 					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 					// Convert BufferedImage to byteArrayOutputStream
-					ImageIO.write(outputImage, "png", byteArrayOutputStream);
+					ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
 					// Convert size in byte[]
 					byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 
