@@ -21,7 +21,7 @@ public class Server {
 		int numClient = 0;
 		
 		try {
-			serverSocket = new ServerSocket(13085,0);
+			serverSocket = new ServerSocket(35000,100);
 			while (true) {
 				System.out.println("Waiting...");
 				int bytesRead;

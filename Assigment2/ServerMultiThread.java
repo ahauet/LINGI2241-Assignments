@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Semaphore;
 
 import javax.imageio.ImageIO;
 
@@ -23,14 +22,12 @@ public class ServerMultiThread {
 		
 		try {
 			serverSocket = new ServerSocket(13085,0);
-			final Semaphore s = new Semaphore(5);// the number of thread is 5.
 			while (true) {
 				System.out.println("Waiting....");
-				
-				final Socket socket = serverSocket.accept();;
+				final Socket socket = serverSocket.accept();
+				System.out.println("coucocu");
 				final int numRegisterClient = numClient;
 				System.out.println("Received a  connection from  " + socket);
-				s.acquire();
 				Thread t = new Thread(new Runnable() {
 					public void run() {
 						try {
@@ -38,14 +35,11 @@ public class ServerMultiThread {
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						} finally {
-							s.release();
-						}
+						}// code goes here.
 					}
 				}); 
 
 				t.start(); // start a new thread
-				System.out.println("Number of thread: "+t.activeCount());
 				
 				numClient = numClient + 1;
 				

@@ -14,16 +14,16 @@ import javax.imageio.ImageIO;
 
 public class ServerWithCustomBacklog {
 	
-	private static PriorityBlockingQueue<Element> pq;
+	private static PriorityBlockingQueue<Element2> pq;
 
 	public static void main(String[] args) throws IOException {
 		
-		final ServerSocket server = new ServerSocket(13085,0);
+		ServerSocket server = new ServerSocket(13085);
 		
-		pq = new PriorityBlockingQueue<Element>(10, new Comparator<Element>() {
+		pq = new PriorityBlockingQueue<Element2>(10, new Comparator<Element2>() {
 
 			@Override
-			public int compare(Element o1, Element o2) {
+			public int compare(Element2 o1, Element2 o2) {
 				return o1.getImage().length - o2.getImage().length;
 			}
 			
@@ -37,7 +37,7 @@ public class ServerWithCustomBacklog {
 				try {
 					while(true) {
 						Socket socket = server.accept();
-						pq.add(new Element(socket));
+						pq.add(new Element2(socket));
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -52,7 +52,7 @@ public class ServerWithCustomBacklog {
 			public void run() {
 				while(true) {
 					if (!pq.isEmpty()) {
-						Element element = pq.poll();
+						Element2 element = pq.poll();
 						byte[] image = element.getImage();
 						
 						BufferedImage inputImage = null;
@@ -91,7 +91,6 @@ public class ServerWithCustomBacklog {
 							
 							if (element.getClient_socket() != null) {
 								element.getClient_socket().close();
-								System.out.println("Response time : " + (System.currentTimeMillis()-element.getCreate_time())+" ms\n");
 							}
 							
 						} catch (IOException e) {
@@ -112,12 +111,10 @@ class Element {
 	private Socket client_socket;
   private InputStream client_in;
   private OutputStream client_out;
-  private long create_time;
   private byte[] image;
   
   public Element(Socket socket) {
 		try {
-			this.create_time = System.currentTimeMillis();
 			this.client_socket = socket;
 			this.client_in = client_socket.getInputStream();
 			this.client_out = client_socket.getOutputStream();
@@ -155,10 +152,6 @@ class Element {
 	
   public Socket getClient_socket() {
 		return client_socket;
-	}
-  
-  public long getCreate_time() {
-		return create_time;
 	}
 	
 }
