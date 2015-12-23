@@ -1,3 +1,9 @@
+/**
+ * Client
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +31,7 @@ public class Client {
 	
 	public static void main(String[] args) throws Exception {
 		
-		// Check the usage, we need one argument => the problem number
+		// Check the usage, we need two arguments => the problem number and the ip address of the server
 		if(args.length != 2) {
 			System.err.println("Usage : java client problem_number address");
 			System.exit(-1);
@@ -44,7 +50,7 @@ public class Client {
 		long beginTime = System.currentTimeMillis();
 		
 		// connect to server
-		Socket socket = new Socket(args[1], 35000);
+		Socket socket = new Socket(args[1], 8080);
 		
 		//////////////////////////
 		// Send image to server //
@@ -100,8 +106,8 @@ public class Client {
 		BufferedImage outputImage = ImageIO.read(new ByteArrayInputStream(imageAr));
 		
 		long timeBeforeWriteOnDisk =  System.currentTimeMillis();
-		
-		ImageIO.write(outputImage, "jpg", new File("finale_" + files[problem_number-1]));
+		// Write the solution
+		ImageIO.write(outputImage, "jpg", new File("final_" + files[problem_number-1]));
 		
 		long timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		
