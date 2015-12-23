@@ -1,3 +1,9 @@
+/**
+ * ServerWithCustomBacklogWithoutSort
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,22 +19,27 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 public class ServerWithCustomBacklogWithoutSort {
-
+	//Queuing station model
 	private static List<Element> pq;
-
+	private static int numClient = 1;
+	private static long totalDelay = 0;
+	private static ServerSocket serverSocket;
+	
 	public static void main(String[] args) throws IOException {
+		//Creation of a socket on port 22000 with a blacklog of 0 => all client
+		// go in the queuing station
+		serverSocket = new ServerSocket(22000,0);
 
-		ServerSocket server = new ServerSocket(13085);
-
+		//Creation of the queuing station no ordered
 		pq = new LinkedList<>();
 
+		//Creation of a thread to manage the queuing station
 		Thread t1 = new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				try {
 					while(true) {
-						Socket socket = server.accept();
+						Socket socket = serverSocket.accept();
 						pq.add(new Element(socket));
 					}
 				} catch (IOException e) {
@@ -37,18 +48,12 @@ public class ServerWithCustomBacklogWithoutSort {
 
 			}
 		});
-
+		
+		//Creation of a thread to do the computation on the pictures
 		Thread t2 = new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				while(true) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 					if (!pq.isEmpty()) {
 						Element element = pq.remove(0);
 						byte[] image = element.getImage();
@@ -60,7 +65,7 @@ public class ServerWithCustomBacklogWithoutSort {
 						try {
 							inputImage = ImageIO.read(new ByteArrayInputStream(image));
 							outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
-							System.out.println("with" + inputImage.getWidth() + "height" + inputImage.getHeight());
+							//System.out.println("with" + inputImage.getWidth() + "height" + inputImage.getHeight());
 							for (int x = 0; x < inputImage.getWidth(); x++) {
 								for (int y = 0; y < inputImage.getHeight(); y++) {
 									int rgb = inputImage.getRGB(x, y);
@@ -77,7 +82,7 @@ public class ServerWithCustomBacklogWithoutSort {
 							OutputStream outputStream = element.getClient_socket().getOutputStream();
 							// Create the byteArrayOutputStream
 							ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-							ImageIO.write(outputImage, "png", byteArrayOutputStream);
+							ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
 							System.out.println("size 4 :"+ byteArrayOutputStream.size());
 							// Convert size in byte[]
 							byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
@@ -89,6 +94,12 @@ public class ServerWithCustomBacklogWithoutSort {
 
 							if (element.getClient_socket() != null) {
 								element.getClient_socket().close();
+								long timeServer = System.currentTimeMillis()-element.getCreate_time();
+								System.out.println("Queue size = " + pq.size());
+								System.out.println("time client "+ numClient +" in server : " + timeServer + " ms");
+								totalDelay += timeServer;
+								System.out.println("Total time = " + totalDelay +"ms \n");
+								numClient++;	
 							}
 
 						} catch (IOException e) {
@@ -104,15 +115,20 @@ public class ServerWithCustomBacklogWithoutSort {
 	}
 }
 
+//Represent an element in the queuing station model
 class Element2 {
-
+	
 	private Socket client_socket;
   private InputStream client_in;
   private OutputStream client_out;
+  // When the element is created
+  private long create_time;
+  // Representation of the picture
   private byte[] image;
-
+  
   public Element2(Socket socket) {
 		try {
+			this.create_time = System.currentTimeMillis();
 			this.client_socket = socket;
 			this.client_in = client_socket.getInputStream();
 			this.client_out = client_socket.getOutputStream();
@@ -134,22 +150,26 @@ class Element2 {
 					sizeReaded += bytesRead;
 				}
 			}
-
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+  
   public byte[] getImage() {
 		return image;
 	}
-
+  
   public OutputStream getClient_out() {
 		return client_out;
 	}
-
+	
   public Socket getClient_socket() {
 		return client_socket;
 	}
-
+  
+  public long getCreate_time() {
+		return create_time;
+	}
+	
 }

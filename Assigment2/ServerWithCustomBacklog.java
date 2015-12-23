@@ -1,3 +1,9 @@
+/**
+ * ServerWithCustomBacklog
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,14 +20,23 @@ import javax.imageio.ImageIO;
 
 public class ServerWithCustomBacklog {
 	
+	//Queuing station model
 	private static PriorityBlockingQueue<Element> pq;
+	
+	private static int numClient = 1;
+	private static long totalDelay = 0;
+
+	private static ServerSocket serverSocket;
 
 	public static void main(String[] args) throws IOException {
-		
-		final ServerSocket server = new ServerSocket(13085,0);
-		
-		pq = new PriorityBlockingQueue<Element>(10, new Comparator<Element>() {
+		//Creation of a socket on port 22000 with a blacklog of 0 => all client
+		// go in the queuing station
+		serverSocket = new ServerSocket(22000,0);
 
+		pq = new PriorityBlockingQueue<Element>(10, new Comparator<Element>() {
+			//Implementation of job priorities for the queuing station
+			//We order the queue according the size of the picture
+			// (the smallest to the largest)
 			@Override
 			public int compare(Element o1, Element o2) {
 				return o1.getImage().length - o2.getImage().length;
@@ -29,25 +44,23 @@ public class ServerWithCustomBacklog {
 			
 		});
 		
-		
-		Thread t1 = new Thread(new Runnable() {
-			
+		//Creation of a thread to manage the queuing station
+		Thread t1 = new Thread(new Runnable() {		
 			@Override
 			public void run() {
 				try {
 					while(true) {
-						Socket socket = server.accept();
+						Socket socket = serverSocket.accept();
 						pq.add(new Element(socket));
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
 			}
 		});
 		
+		//Creation of a thread to do the computation on the pictures
 		Thread t2 = new Thread(new Runnable() {
-			
 			@Override
 			public void run() {
 				while(true) {
@@ -79,7 +92,7 @@ public class ServerWithCustomBacklog {
 							OutputStream outputStream = element.getClient_socket().getOutputStream();
 							// Create the byteArrayOutputStream
 							ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-							ImageIO.write(outputImage, "png", byteArrayOutputStream);
+							ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
 							System.out.println("size 4 :"+ byteArrayOutputStream.size());
 							// Convert size in byte[]
 							byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
@@ -91,7 +104,12 @@ public class ServerWithCustomBacklog {
 							
 							if (element.getClient_socket() != null) {
 								element.getClient_socket().close();
-								System.out.println("Response time : " + (System.currentTimeMillis()-element.getCreate_time())+" ms\n");
+								System.out.println("Queue size = " + pq.size());
+								long timeServer = System.currentTimeMillis()-element.getCreate_time();
+								System.out.println("time client "+ numClient +" in server : " + timeServer + " ms");
+								totalDelay += timeServer;
+								System.out.println("Total time = " + totalDelay +"ms \n");
+								numClient++;
 							}
 							
 						} catch (IOException e) {
@@ -107,12 +125,15 @@ public class ServerWithCustomBacklog {
 	}
 }
 
+//Represent an element in the queuing station model
 class Element {
 	
 	private Socket client_socket;
   private InputStream client_in;
   private OutputStream client_out;
+  // When the element is created
   private long create_time;
+  // Representation of the picture
   private byte[] image;
   
   public Element(Socket socket) {

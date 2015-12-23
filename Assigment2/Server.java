@@ -1,3 +1,9 @@
+/**
+ * Server
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,12 +25,14 @@ public class Server {
 
 		ServerSocket serverSocket = null;
 		int numClient = 0;
+		long total_time = 0;
 		
 		try {
-			serverSocket = new ServerSocket(35000,100);
+			//Creation of a server socket on port 22000 with a backlog of 200
+			serverSocket = new ServerSocket(22000,200);
 			while (true) {
 				System.out.println("Waiting...");
-				int bytesRead;
+				
 				BufferedImage outputImage = null;
 				Socket socket = null;
 				long timeBeforeReading = 0;
@@ -53,16 +61,14 @@ public class Server {
 					byte[] imageAr = new byte[sizeIn];
 					// size of the image already read
 					int sizeReaded = 0;
+					int bytesRead = 0;
 					// while the image is not completely read
-					while(sizeReaded != sizeIn ){
+					while(sizeReaded != sizeIn && bytesRead > -1){
 						// read the image
 						bytesRead = inputStream.read(imageAr, sizeReaded, sizeIn-sizeReaded);
 						
 						if(bytesRead >= 0 ){
 							sizeReaded += bytesRead;
-						}
-						else if (bytesRead == -1) {
-							break;
 						}
 					}
 					long timeReading = System.currentTimeMillis() - timeBeforeReading;
@@ -128,10 +134,13 @@ public class Server {
 					if (inputStream!=null) inputStream.close();
 					if (outputStream!=null) outputStream.close();
 					if (socket!=null){ 
+						//Close the client socket
 						socket.close();
 						
 						long timeServer = System.currentTimeMillis()-timeBeforeReading;
-						System.out.println("time client "+ numClient +" in server : " + timeServer + " ms\n");
+						System.out.println("time client "+ numClient +" in server : " + timeServer + " ms");
+						total_time += timeServer;
+						System.out.println("time total = " + total_time + "ms\n");
 					}
 				}
 			}
