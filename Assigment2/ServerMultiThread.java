@@ -1,3 +1,9 @@
+/**
+ * ServerMultiThread
+ * 
+ * Alexandre Hauet & Maximilien Roberti
+ * 
+ */
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -7,43 +13,62 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Semaphore;
 
 import javax.imageio.ImageIO;
 
 
 public class ServerMultiThread {
-
-
+	
+	//Total response time of the server (needed to compute the average response time)
+	private static long totalTime = 0;
 
 	public static void main(String[] args) throws Exception {
+		
+	// Check the usage, we need one argument => the problem number
+		if(args.length != 1) {
+			System.err.println("Usage : java ServerMultiThread number_max_threads");
+			System.exit(-1);
+		}
+			
+		int number_max_threads = Integer.getInteger(args[0]);
+		
+		if(number_max_threads < 1) {
+			System.err.println("The number of threads must be positif");
+			System.exit(-1);
+		}
 
 		ServerSocket serverSocket = null;
-		int numClient = 0;
+		//Indicate the number of the client
+		int numClient = 1;
 		
 		try {
-			serverSocket = new ServerSocket(13085,0);
+			//Creation of a server socket with a backlog of 200
+			serverSocket = new ServerSocket(22000,200);
+			//Create a semaphore to not surpass the number of thread authorized
+			Semaphore s  = new Semaphore(number_max_threads);
+			//The server is running
 			while (true) {
 				System.out.println("Waiting....");
+				//A client contact the server
 				final Socket socket = serverSocket.accept();
-				System.out.println("coucocu");
 				final int numRegisterClient = numClient;
 				System.out.println("Received a  connection from  " + socket);
+				//Creation of a thread to handle the connection
 				Thread t = new Thread(new Runnable() {
 					public void run() {
 						try {
 							handleClientRequest(socket, numRegisterClient);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
-						}// code goes here.
+						}  finally {
+							//Release the semaphore
+							s.release();
+						}
 					}
 				}); 
-
 				t.start(); // start a new thread
-				
 				numClient = numClient + 1;
-				
-				
 			}
 		}
 		finally{
@@ -51,6 +76,7 @@ public class ServerMultiThread {
 		}
 
 	}
+	
 	
 	public static void handleClientRequest(Socket socket, int numClient) throws Exception {
 		
@@ -84,7 +110,6 @@ public class ServerMultiThread {
 			while(sizeReaded != sizeIn){
 				// read the image
 				bytesRead = inputStream.read(imageAr, sizeReaded, sizeIn-sizeReaded);
-
 				if(bytesRead >= 0){
 					sizeReaded += bytesRead;
 				}
@@ -121,7 +146,7 @@ public class ServerMultiThread {
 			// Create the byteArrayOutputStream
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			// Convert BufferedImage to byteArrayOutputStream
-			ImageIO.write(outputImage, "png", byteArrayOutputStream);
+			ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
 			// Convert size in byte[]
 			byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 
@@ -154,7 +179,9 @@ public class ServerMultiThread {
 			if (socket!=null){ 
 				socket.close();
 				long timeServer = System.currentTimeMillis()-timeBeforeReading;
-				System.out.println("time client "+ numClient +" in server : " + timeServer + " ms\n");
+				System.out.println("time client "+ numClient +" in server : " + timeServer + " ms");
+				totalTime += timeServer;
+				System.out.println("Total time = " + totalTime + " ms\n");
 			}
 		}
 		
