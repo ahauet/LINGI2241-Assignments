@@ -30,8 +30,8 @@ public class ServerMultiThread {
 			System.err.println("Usage : java ServerMultiThread number_max_threads");
 			System.exit(-1);
 		}
-			
-		int number_max_threads = Integer.getInteger(args[0]);
+		
+		int number_max_threads = Integer.valueOf(args[0]);
 		
 		if(number_max_threads < 1) {
 			System.err.println("The number of threads must be positif");

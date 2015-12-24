@@ -75,7 +75,6 @@ public class ServerWithCustomBacklog {
 						try {
 							inputImage = ImageIO.read(new ByteArrayInputStream(image));
 							outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),BufferedImage.TYPE_INT_RGB);
-							System.out.println("with" + inputImage.getWidth() + "height" + inputImage.getHeight());
 							for (int x = 0; x < inputImage.getWidth(); x++) {
 								for (int y = 0; y < inputImage.getHeight(); y++) {
 									int rgb = inputImage.getRGB(x, y);
@@ -93,7 +92,6 @@ public class ServerWithCustomBacklog {
 							// Create the byteArrayOutputStream
 							ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 							ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
-							System.out.println("size 4 :"+ byteArrayOutputStream.size());
 							// Convert size in byte[]
 							byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 							// Send size to server

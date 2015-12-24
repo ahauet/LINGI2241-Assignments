@@ -15,12 +15,14 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.imageio.ImageIO;
 
 public class ServerWithCustomBacklogWithoutSort {
 	//Queuing station model
-	private static List<Element> pq;
+	private static BlockingQueue<Element> pq;
 	private static int numClient = 1;
 	private static long totalDelay = 0;
 	private static ServerSocket serverSocket;
@@ -29,9 +31,9 @@ public class ServerWithCustomBacklogWithoutSort {
 		//Creation of a socket on port 22000 with a blacklog of 0 => all client
 		// go in the queuing station
 		serverSocket = new ServerSocket(22000,0);
-
+		
 		//Creation of the queuing station no ordered
-		pq = new LinkedList<>();
+		pq = new LinkedBlockingDeque<Element>();
 
 		//Creation of a thread to manage the queuing station
 		Thread t1 = new Thread(new Runnable() {
@@ -45,7 +47,6 @@ public class ServerWithCustomBacklogWithoutSort {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
 			}
 		});
 		
@@ -55,7 +56,7 @@ public class ServerWithCustomBacklogWithoutSort {
 			public void run() {
 				while(true) {
 					if (!pq.isEmpty()) {
-						Element element = pq.remove(0);
+						Element element = pq.poll();
 						byte[] image = element.getImage();
 
 						BufferedImage inputImage = null;
@@ -83,7 +84,6 @@ public class ServerWithCustomBacklogWithoutSort {
 							// Create the byteArrayOutputStream
 							ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 							ImageIO.write(outputImage, "jpg", byteArrayOutputStream);
-							System.out.println("size 4 :"+ byteArrayOutputStream.size());
 							// Convert size in byte[]
 							byte[] sizeOut = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 							// Send size to server
@@ -91,7 +91,6 @@ public class ServerWithCustomBacklogWithoutSort {
 							// Send image to server
 							outputStream.write(byteArrayOutputStream.toByteArray());
 							outputStream.flush();
-
 							if (element.getClient_socket() != null) {
 								element.getClient_socket().close();
 								long timeServer = System.currentTimeMillis()-element.getCreate_time();
@@ -109,9 +108,8 @@ public class ServerWithCustomBacklogWithoutSort {
 				}
 			}
 		});
-
-		t1.start();
 		t2.start();
+		t1.start();
 	}
 }
 

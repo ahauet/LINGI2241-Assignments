@@ -50,7 +50,7 @@ public class Client {
 		long beginTime = System.currentTimeMillis();
 		
 		// connect to server
-		Socket socket = new Socket(args[1], 8080);
+		Socket socket = new Socket(args[1], 22000);
 		
 		//////////////////////////
 		// Send image to server //
@@ -59,7 +59,7 @@ public class Client {
 		OutputStream outputStream = socket.getOutputStream();
 		// Read the image from the file
 		System.out.println(files[problem_number-1]);
-		BufferedImage image = ImageIO.read(new File(files[problem_number-1]));
+		BufferedImage image = ImageIO.read(new File("images/"+files[problem_number-1]));
 		// Create the byteArrayOutputStream
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		// Convert BufferedImage to byteArrayOutputStream
@@ -107,7 +107,7 @@ public class Client {
 		
 		long timeBeforeWriteOnDisk =  System.currentTimeMillis();
 		// Write the solution
-		ImageIO.write(outputImage, "jpg", new File("final_" + files[problem_number-1]));
+		ImageIO.write(outputImage, "jpg", new File("final" + files[problem_number-1]));
 		
 		long timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		

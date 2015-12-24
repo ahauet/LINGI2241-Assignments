@@ -22,11 +22,11 @@ public class ClientLoadGenerator {
 	// Each file names in this array correspond to a problem 
 	// For example : 	file name at index 0 is the problem number 1
 	//								file name at index x is the problem number x+1
-	private static String[] files = {"	5x4.jpg", "10x7.jpg","25x17.jpg","50x34.jpg","75x52.jpg","100x69.jpg", "150x102.jpg",
+	private static String[] files = {"5x4.jpg", "10x7.jpg","25x17.jpg","50x34.jpg","75x52.jpg","100x69.jpg", "150x102.jpg",
 			"200x137.jpg", "250x171.jpg","300x205.jpg", "400x247.jpg", "500x341.jpg", "600x411.jpg", "700x478.jpg", "800x548.jpg",
 			"900x617.jpg","1000x683.jpg", "1100x754.jpg", "1200x820.jpg", "1300x891.jpg","1400x957.jpg","1500x1028.jpg","1600x1094.jpg",
-			"1700x1165.jpg,","1800x1231.jpg","1900x1302.jpg","2000x1368.jpg","2100x1439.jpg","2200x1507.jpg","2300x1576.jpg", "2400x1641.jpg",
-			"2500x1713.jpg","2600x1781.jpg","2700x1850.jpg","2800x1915.jpg","2900x1987.jpg","3000x2055.jpg","	3100x2123.jpg","3200x2188.jpg",
+			"1700x1165.jpg","1800x1231.jpg","1900x1302.jpg","2000x1368.jpg","2100x1439.jpg","2200x1507.jpg","2300x1576.jpg", "2400x1641.jpg",
+			"2500x1713.jpg","2600x1781.jpg","2700x1850.jpg","2800x1915.jpg","2900x1987.jpg","3000x2055.jpg","3100x2123.jpg","3200x2188.jpg",
 			"3200x2191.jpg","3300x2259.jpg","3400x2327.jpg","3500x2395.jpg","3600x2462.jpg","3600x2463.jpg","3700x2531.jpg","3800x2599.jpg",
 			"3900x2667.jpg","4000x2735.jpg"		
 	};
@@ -62,11 +62,11 @@ public class ClientLoadGenerator {
 
 			outputStream = socket.getOutputStream();
 			// Read the image from the file
-			image = ImageIO.read(new File(fileName));
+			image = ImageIO.read(new File("images//"+ fileName));
 			// Create the byteArrayOutputStream
 			byteArrayOutputStream = new ByteArrayOutputStream();
 			// Convert BufferedImage to byteArrayOutputStream
-			ImageIO.write(image, "png", byteArrayOutputStream);
+			ImageIO.write(image, "jpg", byteArrayOutputStream);
 			// Convert size in byte[]
 			byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
 			// Send size to server
@@ -109,7 +109,7 @@ public class ClientLoadGenerator {
 			
 			timeBeforeWriteOnDisk =  System.currentTimeMillis();
 			
-			ImageIO.write(outputImage, "png", new File("final_"+fileName));
+			ImageIO.write(outputImage, "jpg", new File("final_"+fileName));
 			
 			timeToWriteOnDisk = System.currentTimeMillis() - timeBeforeWriteOnDisk;
 		}
@@ -151,14 +151,15 @@ public class ClientLoadGenerator {
 					try {
 						Client(files[problem_number],registerNumber, address);
 					} catch (Exception e) {
+						System.err.println("Problem with the picture " + files[problem_number]);
 						e.printStackTrace();
 					}
 				}
 			}); 
 
 			t.start();
-			
-			Thread.sleep((long) getDelay());
+			// Delay in seconds
+			Thread.sleep((long) (getDelay() * 1000));
 			clientNumber = clientNumber + 1; 
 		}
 	}
